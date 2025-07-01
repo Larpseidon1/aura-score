@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { HeroHeader } from './HeroHeader';
 import { Header } from './Header';
 import { RevenueChart } from './RevenueChart';
@@ -10,6 +10,7 @@ import { InfrastructureComparison } from './InfrastructureComparison';
 import { LoadingSpinner } from './LoadingSpinner';
 import { Footer } from './Footer';
 import { DashboardData, TimeRange } from '@/types';
+import Image from 'next/image';
 
 interface CryptoProject {
   name: string;
@@ -31,7 +32,61 @@ export function Dashboard() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [auraRanks, setAuraRanks] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [backgroundsReady, setBackgroundsReady] = useState(false);
+  const [shouldPreserveScroll, setShouldPreserveScroll] = useState(false);
+  const savedScrollPosition = useRef<number>(0);
+
+  // Check if sky images are already loaded (from loading screen)
+  useEffect(() => {
+    // Small delay to allow loading screen preloading to complete
+    const timer = setTimeout(() => {
+      setBackgroundsReady(true);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Enhanced timeRange change handler with scroll preservation
+  const handleTimeRangeChange = (newTimeRange: TimeRange['value']) => {
+    // Save current scroll position
+    savedScrollPosition.current = window.scrollY;
+    setShouldPreserveScroll(true);
+    setTimeRange(newTimeRange);
+  };
+
+  // Restore scroll position after content updates
+  useEffect(() => {
+    if (shouldPreserveScroll && !dataLoading && dashboardData) {
+      // Use multiple methods to ensure scroll restoration works
+      const restoreScroll = () => {
+        const targetY = savedScrollPosition.current;
+        
+        // Method 1: Direct scroll
+        window.scrollTo(0, targetY);
+        
+        // Method 2: Smooth scroll as backup
+        setTimeout(() => {
+          window.scrollTo({
+            top: targetY,
+            behavior: 'instant'
+          });
+        }, 50);
+        
+        // Method 3: Force scroll with longer delay
+        setTimeout(() => {
+          if (Math.abs(window.scrollY - targetY) > 10) {
+            window.scrollTo(0, targetY);
+          }
+        }, 100);
+      };
+
+      // Restore scroll after a brief delay to ensure content is rendered
+      setTimeout(restoreScroll, 0);
+      setShouldPreserveScroll(false);
+    }
+  }, [shouldPreserveScroll, dataLoading, dashboardData]);
 
   // Calculate aura score for a project (same logic as InfrastructureComparison)
   const calculateAuraScore = (project: CryptoProject): ProjectWithAuraScore => {
@@ -104,7 +159,12 @@ export function Dashboard() {
 
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      // Only show full loading spinner on initial load
+      if (!dashboardData) {
+        setLoading(true);
+      } else {
+        setDataLoading(true); // Show smaller loading indicator for timeframe changes
+      }
       setError(null);
       
       try {
@@ -153,13 +213,15 @@ export function Dashboard() {
         setError('Failed to load data. Please try again.');
       } finally {
         setLoading(false);
+        setDataLoading(false);
       }
     }
 
     fetchData();
   }, [timeRange]);
 
-  if (loading) {
+  // Only show full loading spinner on initial load
+  if (loading && !dashboardData) {
     return <LoadingSpinner variant="sky" />;
   }
 
@@ -186,35 +248,16 @@ export function Dashboard() {
 
   return (
     <>
-      {/* Responsive Background with Optimized Loading */}
-      <div 
-        className="fixed inset-0 z-0"
-        style={{
-          background: `
-            linear-gradient(135deg, #87CEEB 0%, #98D8E8 25%, #B6E5F0 50%, #87CEEB 100%)
-          `,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'scroll',
-        }}
-      />
+      {/* Enhanced gradient background with animated texture - loads instantly */}
+      <div className="fixed inset-0 z-0 sky-gradient-base sky-texture hidden sm:block" />
       
-      {/* Mobile Background (up to 768px) */}
-      <div 
-        className="fixed inset-0 z-0 md:hidden"
-        style={{
-          backgroundImage: 'url(/sky-mobile.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'scroll',
-        }}
-      />
+      {/* Mobile Background - removed, using solid white instead */}
       
-      {/* Desktop Background (768px and up) */}
+      {/* Desktop Background - smooth transition when ready */}
       <div 
-        className="hidden md:block fixed inset-0 z-0"
+        className={`hidden md:block fixed inset-0 z-0 transition-opacity duration-1000 ${
+          backgroundsReady ? 'opacity-100' : 'opacity-0'
+        }`}
         style={{
           backgroundImage: 'url(/sky-4k.png)',
           backgroundSize: 'cover',
@@ -223,41 +266,70 @@ export function Dashboard() {
           backgroundAttachment: 'scroll',
         }}
       />
+
+      {/* Data Loading Overlay - shown during timeframe changes */}
+      {dataLoading && (
+        <div className="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="animate-spin rounded-full border-2 border-gray-300 border-t-blue-500 h-5 w-5"></div>
+            <span className="text-sm font-medium text-gray-700">Updating data...</span>
+          </div>
+        </div>
+      )}
       
-      {/* Main Content Container */}
-      <div className="relative z-10 min-h-screen px-8 py-4">
+      {/* Main Content Container - Edge to edge on mobile */}
+      <div className="relative z-10 min-h-screen bg-white sm:bg-transparent px-0 sm:px-8 py-0 sm:py-4">
+        {/* Mobile Logo - Only visible on mobile */}
+        <div className="block sm:hidden bg-white border-b border-gray-100 px-4 py-4">
+          <div className="flex justify-center">
+            <Image
+              src="/logo-full-horizontal.svg"
+              alt="Aura Logo"
+              width={180}
+              height={54}
+              className="h-12 w-auto"
+              priority
+            />
+          </div>
+        </div>
+
         {/* Hero Header */}
-        <HeroHeader />
+        <div className="hidden sm:block">
+          <HeroHeader />
+        </div>
         
-        {/* Main content */}
-        <div className="min-h-[calc(100vh-2rem)] rounded-lg backdrop-blur-sm" style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
-          <div className="container mx-auto max-w-6xl px-8 py-8">
+        {/* Main content - Solid white on mobile, glass effect on desktop */}
+        <div className="min-h-screen bg-white sm:min-h-[calc(100vh-2rem)] sm:rounded-lg sm:backdrop-blur-sm sm:bg-white/50">
+          <div className="container mx-auto max-w-6xl px-0 sm:px-8 py-0 sm:py-8">
 
           
           {/* Aura Score Section - Above header stats */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <InfrastructureComparison />
           </div>
 
-          <Header 
-            data={dashboardData}
-            timeRange={timeRange}
-            onTimeRangeChange={setTimeRange}
-          />
-          
-          <div className="mt-8">
-            <RevenueChart 
+          <div className={`transition-opacity duration-300 ${dataLoading ? 'opacity-70' : 'opacity-100'}`}>
+            <Header 
               data={dashboardData}
               timeRange={timeRange}
+              onTimeRangeChange={handleTimeRangeChange}
+              isLoading={dataLoading}
             />
-          </div>
-          
-          <div className="mt-8">
-            <StatsCards data={dashboardData} />
-          </div>
-          
-          <div className="mt-8">
-            <BuilderLeaderboard builders={dashboardData.builders} auraRanks={auraRanks} />
+            
+            <div className="mt-6 sm:mt-8">
+              <RevenueChart 
+                data={dashboardData}
+                timeRange={timeRange}
+              />
+            </div>
+            
+            <div className="mt-6 sm:mt-8">
+              <StatsCards data={dashboardData} />
+            </div>
+            
+            <div className="mt-6 sm:mt-8">
+              <BuilderLeaderboard builders={dashboardData.builders} auraRanks={auraRanks} />
+            </div>
           </div>
           </div>
         </div>

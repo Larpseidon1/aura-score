@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface LoadingSpinnerProps {
   size?: 'sm' | 'md' | 'lg';
@@ -9,6 +10,24 @@ interface LoadingSpinnerProps {
 }
 
 export function LoadingSpinner({ size = 'md', className = '', variant = 'default' }: LoadingSpinnerProps) {
+  const [skyImageLoaded, setSkyImageLoaded] = useState(false);
+  const [skyMobileLoaded, setSkyMobileLoaded] = useState(false);
+
+  // Preload sky images during loading screen
+  useEffect(() => {
+    if (variant === 'sky') {
+      // Preload desktop sky image
+      const skyImg = document.createElement('img');
+      skyImg.onload = () => setSkyImageLoaded(true);
+      skyImg.src = '/sky-4k.png';
+
+      // Preload mobile sky image
+      const skyMobileImg = document.createElement('img');
+      skyMobileImg.onload = () => setSkyMobileLoaded(true);
+      skyMobileImg.src = '/sky-mobile.png';
+    }
+  }, [variant]);
+
   const sizeClasses = {
     sm: 'h-4 w-4',
     md: 'h-8 w-8',
@@ -46,26 +65,18 @@ export function LoadingSpinner({ size = 'md', className = '', variant = 'default
     );
   }
 
-  // Sky background variant
+  // Sky background variant with progressive loading
   if (variant === 'sky') {
     return (
       <div className="fixed inset-0 z-50">
-        {/* Sky Background */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `
-              linear-gradient(135deg, #87CEEB 0%, #98D8E8 25%, #B6E5F0 50%, #87CEEB 100%)
-            `,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center center',
-            backgroundRepeat: 'no-repeat',
-          }}
-        />
+        {/* Enhanced gradient background with texture - loads instantly */}
+        <div className="absolute inset-0 sky-gradient-base sky-texture" />
         
-        {/* Mobile Sky Background (up to 768px) */}
+        {/* Mobile Sky Background with fade-in when loaded */}
         <div 
-          className="absolute inset-0 md:hidden"
+          className={`absolute inset-0 md:hidden transition-opacity duration-1000 ${
+            skyMobileLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           style={{
             backgroundImage: 'url(/sky-mobile.png)',
             backgroundSize: 'cover',
@@ -74,9 +85,11 @@ export function LoadingSpinner({ size = 'md', className = '', variant = 'default
           }}
         />
         
-        {/* Desktop Sky Background (768px and up) */}
+        {/* Desktop Sky Background with fade-in when loaded */}
         <div 
-          className="hidden md:block absolute inset-0"
+          className={`hidden md:block absolute inset-0 transition-opacity duration-1000 ${
+            skyImageLoaded ? 'opacity-100' : 'opacity-0'
+          }`}
           style={{
             backgroundImage: 'url(/sky-4k.png)',
             backgroundSize: 'cover',
@@ -99,7 +112,23 @@ export function LoadingSpinner({ size = 'md', className = '', variant = 'default
               />
             </div>
             <div className="text-xl font-semibold text-gray-800 mb-2">Loading Dashboard</div>
-            <div className="text-sm text-gray-600">Fetching the latest builder analytics...</div>
+            <div className="text-sm text-gray-600">
+              {!skyImageLoaded && !skyMobileLoaded 
+                ? 'Loading beautiful backgrounds...' 
+                : 'Fetching the latest builder analytics...'
+              }
+            </div>
+            
+            {/* Progress indicator for background loading */}
+            <div className="mt-4 w-48 mx-auto">
+              <div className="bg-white/30 rounded-full h-2 overflow-hidden">
+                <div 
+                  className={`bg-gradient-to-r from-blue-400 to-cyan-400 h-full rounded-full transition-all duration-1000 ${
+                    skyImageLoaded || skyMobileLoaded ? 'w-full' : 'w-1/3'
+                  }`}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

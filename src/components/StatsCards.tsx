@@ -54,11 +54,11 @@ export function StatsCards({ data }: StatsCardsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <div key={index} className="bg-white rounded-lg shadow-lg border border-gray-200 p-6 transition-all hover:shadow-xl">
+          <div key={index} className="bg-white rounded-none sm:rounded-lg shadow-none sm:shadow-lg border-b border-gray-100 sm:border sm:border-gray-200 p-4 sm:p-6 transition-all sm:hover:shadow-xl">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">

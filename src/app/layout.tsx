@@ -40,9 +40,36 @@ const haasGrotText = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'Hyperliquid Builders',
-  description: 'Real-time revenue analytics dashboard for Hyperliquid builder codes',
-  keywords: 'Hyperliquid, builder, revenue, analytics, dashboard',
+  title: 'Aura Score',
+  description: 'Quantifying taste, at scale—ranking projects by aura-adjusted revenue efficiency',
+  keywords: 'Aura, Score, Hyperliquid, builder, revenue, analytics, dashboard, crypto, DeFi',
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
+  openGraph: {
+    title: 'Aura Score',
+    description: 'Quantifying taste, at scale—ranking projects by aura-adjusted revenue efficiency',
+    url: 'https://maxxing.aura.money',
+    siteName: 'Aura Score',
+    images: [
+      {
+        url: '/link-preview.png',
+        width: 1200,
+        height: 630,
+        alt: 'Aura Score - Hyperliquid Builder Revenue Dashboard',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Aura Score',
+    description: 'Quantifying taste, at scale—ranking projects by aura-adjusted revenue efficiency',
+    images: ['/link-preview.png'],
+  },
 };
 
 export default function RootLayout({

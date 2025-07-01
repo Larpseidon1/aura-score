@@ -36,18 +36,18 @@ interface ProjectWithAuraScore extends CryptoProject {
 
 // Helper function to render category badges
 const renderCategoryBadges = (project: CryptoProject) => (
-  <div className="flex items-center gap-1 flex-wrap">
+  <div className="flex items-center gap-1">
     <span className={`text-xs px-2 py-1 rounded-full ${
       project.category === 'L1' ? 'bg-blue-100 text-blue-800' :
       project.category === 'L2' ? 'bg-green-100 text-green-800' :
       project.category === 'Stablecoins' ? 'bg-orange-100 text-orange-800' :
       'bg-purple-100 text-purple-800'
     }`}>
-      {project.category}
+      {project.category === 'Application' ? 'App' : project.category}
     </span>
     {project.secondaryCategory && (
       <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
-        {project.secondaryCategory}
+        {project.secondaryCategory === 'Application' ? 'App' : project.secondaryCategory}
       </span>
     )}
   </div>
@@ -261,11 +261,56 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
     const cursedTier = remaining.slice(topTierSize + midTierSize);
 
     return (
-      <div className="p-6">
+      <div className="p-0 sm:p-6">
         {/* Podium - Top 3 */}
         {topThree.length > 0 && (
-          <div className="mb-8">
-            <div className="flex justify-center items-end gap-4 mb-8">
+          <div className="mb-0 sm:mb-8">
+            {/* Mobile Layout - Stack vertically */}
+            <div className="block sm:hidden space-y-0">
+              {topThree.map((project, index) => {
+                const places = ['1st', '2nd', '3rd'];
+                const colors = ['#1956E7', '#82AFD9', '#67A883'];
+                const shapes = ['/Shape_11_Black.png', '/Shape_04_Black.png', '/Shape_09_Black.png'];
+                
+                return (
+                  <div key={project.name} className="bg-white p-4 border-b border-gray-200" style={{borderLeftColor: colors[index], borderLeftWidth: '4px'}}>
+                    <div className="flex items-center gap-3">
+                      <Image 
+                        src={shapes[index]}
+                        alt={`${places[index]} place`} 
+                        width={24} 
+                        height={24}
+                        className="w-6 h-6 flex-shrink-0"
+                      />
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {projectLogos[project.name] && (
+                          <Image
+                            src={projectLogos[project.name]}
+                            alt={`${project.name} logo`}
+                            width={20}
+                            height={20}
+                            className="w-5 h-5 rounded-full object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-sm text-gray-900 truncate">{project.name}</h4>
+                          <p className="text-xs font-medium" style={{color: colors[index]}}>{places[index]} Place</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-sm font-mono font-semibold text-gray-900">
+                          {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
+                        </div>
+                        <div className="text-xs text-gray-500">Aura</div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Layout - Traditional podium */}
+            <div className="hidden sm:flex justify-center items-end gap-4 mb-8">
               {/* 2nd Place */}
               {topThree[1] && (
                 <div className="flex flex-col items-center">
@@ -273,9 +318,9 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
                     <Image 
                       src="/Shape_04_Black.png" 
                       alt="2nd place" 
-                      width={48} 
-                      height={48}
-                      className="w-12 h-12"
+                      width={60} 
+                      height={60}
+                      className="w-15 h-15"
                     />
                   </div>
                   <div className="text-center mb-2">
@@ -283,19 +328,19 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
                   </div>
                   <div className="glass-effect p-4 rounded-xl transition-all hover:shadow-lg max-w-xs border-2" style={{borderColor: '#82AFD9'}}>
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-3 mb-1">
+                      <div className="flex items-center justify-center gap-3 mb-2">
                         {projectLogos[topThree[1].name] && (
                           <Image
                             src={projectLogos[topThree[1].name]}
                             alt={`${topThree[1].name} logo`}
-                            width={28}
-                            height={28}
-                            className="w-7 h-7 rounded-full object-cover"
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full object-cover"
                           />
                         )}
                         <h4 className="font-semibold text-lg text-gray-900">{topThree[1].name}</h4>
                       </div>
-                      <div className="text-sm font-mono mb-1" style={{color: '#181818'}}>
+                      <div className="text-sm font-mono" style={{color: '#181818'}}>
                         Aura: {topThree[1].auraScore === Infinity ? '∞' : formatAuraScore(Math.round(topThree[1].auraScore))}
                       </div>
                     </div>
@@ -306,7 +351,7 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
               {/* 1st Place */}
               {topThree[0] && (
                 <div className="flex flex-col items-center">
-                  <div className="mb-2">
+                  <div className="mb-3">
                     <Image 
                       src="/Shape_11_Black.png" 
                       alt="1st place" 
@@ -315,24 +360,24 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
                       className="w-20 h-10"
                     />
                   </div>
-                  <div className="text-center mb-2">
+                  <div className="text-center mb-3">
                     <span className="text-xl font-bold" style={{color: '#1956E7'}}>1st Place</span>
                   </div>
-                  <div className="glass-effect p-6 rounded-xl border-2 transition-all hover:shadow-xl max-w-xs transform scale-110" style={{borderColor: '#1956E7'}}>
+                  <div className="glass-effect p-6 rounded-xl border-2 transition-all hover:shadow-xl max-w-sm transform scale-110" style={{borderColor: '#1956E7'}}>
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-3 mb-1">
+                      <div className="flex items-center justify-center gap-3 mb-3">
                         {projectLogos[topThree[0].name] && (
                           <Image
                             src={projectLogos[topThree[0].name]}
                             alt={`${topThree[0].name} logo`}
-                            width={32}
-                            height={32}
-                            className="w-8 h-8 rounded-full object-cover"
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-full object-cover"
                           />
                         )}
                         <h4 className="font-bold text-xl text-gray-900">{topThree[0].name}</h4>
                       </div>
-                      <div className="text-base font-mono mb-2" style={{color: '#181818'}}>
+                      <div className="text-base font-mono" style={{color: '#181818'}}>
                         Aura: {topThree[0].auraScore === Infinity ? '∞' : formatAuraScore(Math.round(topThree[0].auraScore))}
                       </div>
                     </div>
@@ -347,9 +392,9 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
                     <Image 
                       src="/Shape_09_Black.png" 
                       alt="3rd place" 
-                      width={48} 
-                      height={48}
-                      className="w-12 h-12"
+                      width={60} 
+                      height={60}
+                      className="w-15 h-15"
                     />
                   </div>
                   <div className="text-center mb-2">
@@ -357,19 +402,19 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
                   </div>
                   <div className="glass-effect p-4 rounded-xl border-2 transition-all hover:shadow-lg max-w-xs" style={{borderColor: '#67A883'}}>
                     <div className="text-center">
-                      <div className="flex items-center justify-center gap-3 mb-1">
+                      <div className="flex items-center justify-center gap-3 mb-2">
                         {projectLogos[topThree[2].name] && (
                           <Image
                             src={projectLogos[topThree[2].name]}
                             alt={`${topThree[2].name} logo`}
-                            width={28}
-                            height={28}
-                            className="w-7 h-7 rounded-full object-cover"
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full object-cover"
                           />
                         )}
                         <h4 className="font-semibold text-lg text-gray-900">{topThree[2].name}</h4>
                       </div>
-                      <div className="text-sm font-mono mb-1" style={{color: '#181818'}}>
+                      <div className="text-sm font-mono" style={{color: '#181818'}}>
                         Aura: {topThree[2].auraScore === Infinity ? '∞' : formatAuraScore(Math.round(topThree[2].auraScore))}
                       </div>
                     </div>
@@ -382,48 +427,48 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
 
         {/* Top-tier */}
         {topTier.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
+          <div className="mb-0 sm:mb-8">
+            <h3 className="text-base font-semibold mb-0 sm:mb-3 text-gray-700 flex items-center gap-2 px-4 py-3 sm:px-0 sm:py-0 bg-gray-50 sm:bg-transparent border-b border-gray-200 sm:border-b-0 sm:text-lg sm:mb-4">
               <Image 
                 src="/Shape_13_Black.png" 
                 alt="Top-tier icon" 
-                width={24} 
-                height={24}
-                className="w-6 h-6"
+                width={20} 
+                height={20}
+                className="w-5 h-5 sm:w-6 sm:h-6"
               />
               Top-tier
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-0 sm:space-y-3">
               {topTier.map((project, index) => {
                 const position = index + 4; // Since this starts after top 3
                 
                 return (
                   <div
                     key={project.name}
-                    className="glass-effect flex items-center justify-between p-4 rounded-xl hover:shadow-md transition-all duration-200"
+                    className="bg-white sm:glass-effect flex items-center justify-between p-4 border-b border-gray-100 sm:border-b-0 sm:rounded-xl sm:hover:shadow-md transition-all duration-200"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl font-bold text-gray-500 min-w-[3rem]">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="text-lg font-bold text-gray-500 min-w-[2.5rem] flex-shrink-0 sm:text-2xl sm:min-w-[3rem]">
                         #{position}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          {projectLogos[project.name] && (
-                            <Image
-                              src={projectLogos[project.name]}
-                              alt={`${project.name} logo`}
-                              width={24}
-                              height={24}
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                          )}
-                          <h4 className="font-semibold text-lg text-gray-900">{project.name}</h4>
-                          {renderCategoryBadges(project)}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {projectLogos[project.name] && (
+                          <Image
+                            src={projectLogos[project.name]}
+                            alt={`${project.name} logo`}
+                            width={20}
+                            height={20}
+                            className="w-5 h-5 rounded-full object-cover flex-shrink-0 sm:w-6 sm:h-6"
+                          />
+                        )}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm text-gray-900 truncate sm:text-lg">{project.name}</h4>
+                          <div>{renderCategoryBadges(project)}</div>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-mono font-semibold" style={{color: '#181818'}}>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-sm font-mono font-semibold text-gray-900 sm:text-lg">
                         {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
                       </div>
                       <div className="text-xs text-gray-500">Aura</div>
@@ -437,48 +482,48 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
 
         {/* Mid-tier */}
         {midTier.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
+          <div className="mb-0 sm:mb-8">
+            <h3 className="text-base font-semibold mb-0 sm:mb-3 text-gray-700 flex items-center gap-2 px-4 py-3 sm:px-0 sm:py-0 bg-gray-50 sm:bg-transparent border-b border-gray-200 sm:border-b-0 sm:text-lg sm:mb-4">
               <Image 
                 src="/Shape_12_Black.png" 
                 alt="Mid-tier icon" 
-                width={24} 
-                height={24}
-                className="w-6 h-6"
+                width={20} 
+                height={20}
+                className="w-5 h-5 sm:w-6 sm:h-6"
               />
               Mid-tier
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-0 sm:space-y-3">
               {midTier.map((project, index) => {
                 const position = index + 4 + topTier.length; // Position after top 3 + topTier
                 
                 return (
                   <div
                     key={project.name}
-                    className="glass-effect flex items-center justify-between p-4 rounded-xl hover:shadow-md transition-all duration-200"
+                    className="bg-white sm:glass-effect flex items-center justify-between p-4 border-b border-gray-100 sm:border-b-0 sm:rounded-xl sm:hover:shadow-md transition-all duration-200"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl font-bold text-gray-500 min-w-[3rem]">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="text-lg font-bold text-gray-500 min-w-[2.5rem] flex-shrink-0 sm:text-2xl sm:min-w-[3rem]">
                         #{position}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          {projectLogos[project.name] && (
-                            <Image
-                              src={projectLogos[project.name]}
-                              alt={`${project.name} logo`}
-                              width={24}
-                              height={24}
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                          )}
-                          <h4 className="font-semibold text-lg text-gray-900">{project.name}</h4>
-                          {renderCategoryBadges(project)}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {projectLogos[project.name] && (
+                          <Image
+                            src={projectLogos[project.name]}
+                            alt={`${project.name} logo`}
+                            width={20}
+                            height={20}
+                            className="w-5 h-5 rounded-full object-cover flex-shrink-0 sm:w-6 sm:h-6"
+                          />
+                        )}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm text-gray-900 truncate sm:text-lg">{project.name}</h4>
+                          <div>{renderCategoryBadges(project)}</div>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-mono font-semibold" style={{color: '#181818'}}>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-sm font-mono font-semibold text-gray-900 sm:text-lg">
                         {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
                       </div>
                       <div className="text-xs text-gray-500">Aura</div>
@@ -493,47 +538,47 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
         {/* Cursed-tier */}
         {cursedTier.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold mb-4 text-gray-700 flex items-center gap-2">
+            <h3 className="text-base font-semibold mb-0 sm:mb-3 text-gray-700 flex items-center gap-2 px-4 py-3 sm:px-0 sm:py-0 bg-gray-50 sm:bg-transparent border-b border-gray-200 sm:border-b-0 sm:text-lg sm:mb-4">
               <Image 
                 src="/Shape_03_Black.png" 
                 alt="Cursed-tier icon" 
-                width={24} 
-                height={24}
-                className="w-6 h-6"
+                width={20} 
+                height={20}
+                className="w-5 h-5 sm:w-6 sm:h-6"
               />
               Cursed-tier
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-0 sm:space-y-3">
               {cursedTier.map((project, index) => {
                 const position = index + 4 + topTier.length + midTier.length; // Position after all previous
                 
                 return (
                   <div
                     key={project.name}
-                    className="glass-effect flex items-center justify-between p-4 rounded-xl hover:shadow-md transition-all duration-200"
+                    className="bg-white sm:glass-effect flex items-center justify-between p-4 border-b border-gray-100 sm:border-b-0 sm:rounded-xl sm:hover:shadow-md transition-all duration-200"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="text-2xl font-bold text-gray-500 min-w-[3rem]">
+                    <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+                      <div className="text-lg font-bold text-gray-500 min-w-[2.5rem] flex-shrink-0 sm:text-2xl sm:min-w-[3rem]">
                         #{position}
                       </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          {projectLogos[project.name] && (
-                            <Image
-                              src={projectLogos[project.name]}
-                              alt={`${project.name} logo`}
-                              width={24}
-                              height={24}
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                          )}
-                          <h4 className="font-semibold text-lg text-gray-900">{project.name}</h4>
-                          {renderCategoryBadges(project)}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {projectLogos[project.name] && (
+                          <Image
+                            src={projectLogos[project.name]}
+                            alt={`${project.name} logo`}
+                            width={20}
+                            height={20}
+                            className="w-5 h-5 rounded-full object-cover flex-shrink-0 sm:w-6 sm:h-6"
+                          />
+                        )}
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm text-gray-900 truncate sm:text-lg">{project.name}</h4>
+                          <div>{renderCategoryBadges(project)}</div>
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-mono font-semibold" style={{color: '#181818'}}>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-sm font-mono font-semibold text-gray-900 sm:text-lg">
                         {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
                       </div>
                       <div className="text-xs text-gray-500">Aura</div>
@@ -549,270 +594,353 @@ export function InfrastructureComparison({ className = '' }: InfrastructureCompa
   };
 
   const renderDetailedView = () => (
-    <div className="p-6">
-      <div className="modern-table overflow-x-auto">
-        <table className="min-w-full">
-          <thead>
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rank
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Project
-              </th>
-              <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Category
-              </th>
-              <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Amount Raised
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("Fully Diluted Valuation", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                FDV
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("% gain/loss vs. most recent known private valuation", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                Return Vs. Latest Funding
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("% gain/loss vs. initial token price", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                Return since TGE
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("Trailing 30d revenue × 12", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                Revenue (Annualized)
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("Trailing 30d app ecosystem revenue × 12", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                Ecosystem Revenue (Annualized)
-              </th>
-              <th 
-                className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
-                onMouseEnter={(e) => handleMouseEnter("App and/or native L1/2 revenue = 100% weighted, ecosystem fees = 70% weighted, ÷ amt raised", e)}
-                onMouseLeave={handleMouseLeave}
-              >
-                Aura Score
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {projectsWithAura.map((project, index) => {
-              const annualizedRevenue = project.annualizedRevenue || 0; 
-              const annualizedAppFees = project.annualizedAppFees || 0;
-              const hasRevenue = annualizedRevenue > 0;
-              const hasAppFees = annualizedAppFees > 0;
-              const rank = index + 1;
+    <div className="p-0 sm:p-6">
+      {/* Mobile Card Layout - Only visible on mobile */}
+      <div className="block lg:hidden space-y-0">
+        {projectsWithAura.map((project, index) => {
+          const annualizedRevenue = project.annualizedRevenue || 0; 
+          const annualizedAppFees = project.annualizedAppFees || 0;
+          const hasRevenue = annualizedRevenue > 0;
+          const hasAppFees = annualizedAppFees > 0;
+          const rank = index + 1;
 
-                              return (
-                  <tr key={project.name}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                      rank === 1 ? 'bg-yellow-500/20 text-yellow-600' :
-                      rank === 2 ? 'bg-gray-500/20 text-gray-600' :
-                      rank === 3 ? 'bg-orange-500/20 text-orange-600' :
-                      'bg-gray-100 text-gray-600'
+          return (
+            <div key={project.name} className="bg-white p-4 border-b border-gray-200">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-medium ${
+                    rank === 1 ? 'bg-yellow-500/20 text-yellow-600' :
+                    rank === 2 ? 'bg-gray-500/20 text-gray-600' :
+                    rank === 3 ? 'bg-orange-500/20 text-orange-600' :
+                    'bg-gray-100 text-gray-600'
+                  }`}>
+                    #{rank}
+                  </span>
+                  {projectLogos[project.name] && (
+                    <Image
+                      src={projectLogos[project.name]}
+                      alt={`${project.name} logo`}
+                      width={20}
+                      height={20}
+                      className="w-5 h-5 rounded-full object-cover"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-semibold text-gray-900 text-sm truncate">{project.name}</h3>
+                      <span className={`inline-block px-1.5 py-0.5 rounded-full text-[10px] ${
+                        project.category === 'L1' ? 'bg-blue-100 text-blue-800' :
+                        project.category === 'L2' ? 'bg-green-100 text-green-800' :
+                        project.category === 'Stablecoins' ? 'bg-orange-100 text-orange-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {project.category === 'Application' ? 'App' : project.category}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <div className="text-sm font-mono font-semibold text-gray-900">
+                    {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
+                  </div>
+                  <div className="text-xs text-gray-500">Aura</div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <p className="text-gray-500 font-medium mb-1">Amount Raised</p>
+                  <p className="text-gray-900 font-semibold">
+                    {project.amountRaised > 0 ? formatCurrency(project.amountRaised) : 'Bootstrapped'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-gray-500 font-medium mb-1">FDV</p>
+                  {project.fdv ? (
+                    <p className="text-purple-600 font-semibold">
+                      {formatCurrency(project.fdv)}
+                    </p>
+                  ) : (
+                    <p className="text-gray-400 italic">-</p>
+                  )}
+                </div>
+                {hasRevenue && (
+                  <div>
+                    <p className="text-gray-500 font-medium mb-1">Revenue (Ann.)</p>
+                    <p className="text-blue-600 font-semibold">
+                      {formatCurrency(annualizedRevenue)}
+                    </p>
+                  </div>
+                )}
+                {hasAppFees && (
+                  <div>
+                    <p className="text-gray-500 font-medium mb-1">Ecosystem Rev.</p>
+                    <p className="text-indigo-600 font-semibold">
+                      {formatCurrency(annualizedAppFees)}
+                    </p>
+                  </div>
+                )}
+                {project.returnSinceTGE !== undefined && (
+                  <div>
+                    <p className="text-gray-500 font-medium mb-1">Return since TGE</p>
+                    <p className={`font-semibold ${
+                      project.returnSinceTGE > 0 ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      #{rank}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      {projectLogos[project.name] && (
-                        <Image
-                          src={projectLogos[project.name]}
-                          alt={`${project.name} logo`}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 rounded-full object-cover mr-3"
-                        />
-                      )}
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {project.name}
+                      {formatPercentageWithCommas(project.returnSinceTGE)}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table Layout - Only visible on desktop */}
+      <div className="hidden lg:block">
+        <div className="modern-table overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rank
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Project
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Amount Raised
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("Fully Diluted Valuation", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  FDV
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("% gain/loss vs. most recent known private valuation", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Return Vs. Latest Funding
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("% gain/loss vs. initial token price", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Return since TGE
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("Trailing 30d revenue × 12", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Revenue (Annualized)
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("Trailing 30d app ecosystem revenue × 12", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Ecosystem Revenue (Annualized)
+                </th>
+                <th 
+                  className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider cursor-help"
+                  onMouseEnter={(e) => handleMouseEnter("App and/or native L1/2 revenue = 100% weighted, ecosystem fees = 70% weighted, ÷ amt raised", e)}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  Aura Score
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {projectsWithAura.map((project, index) => {
+                const annualizedRevenue = project.annualizedRevenue || 0; 
+                const annualizedAppFees = project.annualizedAppFees || 0;
+                const hasRevenue = annualizedRevenue > 0;
+                const hasAppFees = annualizedAppFees > 0;
+                const rank = index + 1;
+
+                                return (
+                    <tr key={project.name}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                        rank === 1 ? 'bg-yellow-500/20 text-yellow-600' :
+                        rank === 2 ? 'bg-gray-500/20 text-gray-600' :
+                        rank === 3 ? 'bg-orange-500/20 text-orange-600' :
+                        'bg-gray-100 text-gray-600'
+                      }`}>
+                        #{rank}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        {projectLogos[project.name] && (
+                          <Image
+                            src={projectLogos[project.name]}
+                            alt={`${project.name} logo`}
+                            width={32}
+                            height={32}
+                            className="w-8 h-8 rounded-full object-cover mr-3"
+                          />
+                        )}
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm font-medium text-gray-900">
+                            {project.name}
+                          </div>
+                          <div>
+                            {renderCategoryBadges(project)}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {renderCategoryBadges(project)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
-                    {project.amountRaised > 0 ? formatCurrency(project.amountRaised) : 'Bootstrapped'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    {project.fdv ? (
-                      <span className="text-purple-600 font-semibold">
-                        {formatCurrency(project.fdv)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900">
+                      {project.amountRaised > 0 ? formatCurrency(project.amountRaised) : 'Bootstrapped'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {project.fdv ? (
+                        <span className="text-purple-600 font-semibold">
+                          {formatCurrency(project.fdv)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          -
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {project.returnVsFunding !== undefined ? (
+                        <span className={`font-semibold ${
+                          project.returnVsFunding > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {formatPercentageWithCommas(project.returnVsFunding)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          -
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {project.returnSinceTGE !== undefined ? (
+                        <span className={`font-semibold ${
+                          project.returnSinceTGE > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {formatPercentageWithCommas(project.returnSinceTGE)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          -
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {hasRevenue ? (
+                        <span className="text-blue-600 font-semibold">
+                          {formatCurrency(annualizedRevenue)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          -
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      {hasAppFees ? (
+                        <span className="text-indigo-600 font-semibold">
+                          {formatCurrency(annualizedAppFees)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          -
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                      <span className="text-gray-900 font-semibold">
+                        {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
                       </span>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    {project.returnVsFunding !== undefined ? (
-                      <span className={`font-semibold ${
-                        project.returnVsFunding > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {formatPercentageWithCommas(project.returnVsFunding)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    {project.returnSinceTGE !== undefined ? (
-                      <span className={`font-semibold ${
-                        project.returnSinceTGE > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {formatPercentageWithCommas(project.returnSinceTGE)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    {hasRevenue ? (
-                      <span className="text-blue-600 font-semibold">
-                        {formatCurrency(annualizedRevenue)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    {hasAppFees ? (
-                      <span className="text-indigo-600 font-semibold">
-                        {formatCurrency(annualizedAppFees)}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                    <span className="text-gray-900 font-semibold">
-                      {project.auraScore === Infinity ? '∞' : formatAuraScore(Math.round(project.auraScore))}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className={`glass-container rounded-xl ${className}`}>
-      <div className="glass-header p-6 rounded-t-xl">
-        <div className="text-center mb-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            {viewMode === 'aura' ? (
-              <div className="flex items-center justify-center gap-2">
-                <Image
-                  src="/Shape_Mini_02_Black.png"
-                  alt="Aura"
-                  width={28}
-                  height={28}
-                  className="w-7 h-7"
-                />
-                Aura Score
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <Image
-                  src="/Shape_Mini_03_Black.png"
-                  alt="Detailed Breakdown"
-                  width={28}
-                  height={28}
-                  className="w-7 h-7"
-                />
-                Detailed Breakdown
-              </div>
-            )}
-          </h2>
-          <p className="text-gray-600">
-            Quantifying taste, at scale—ranking projects by aura-adjusted revenue efficiency
-          </p>
-        </div>
-        
-        {/* View Toggle */}
-        <div className="flex justify-center">
-          <div className="glass-effect p-1 rounded-lg">
+    <div className={`bg-white sm:glass-container rounded-none sm:rounded-xl shadow-none sm:shadow-lg ${className}`}>
+      {/* Header */}
+      <div className="bg-white sm:glass-header p-4 sm:p-6 rounded-none sm:rounded-t-xl border-b border-gray-100 sm:border-b-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
+          <div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+              <Image 
+                src="/Shape_Mini_02_Black.png" 
+                alt="Aura Score icon" 
+                width={32} 
+                height={32}
+                className="w-8 h-8"
+              />
+              Aura Score
+            </h2>
+            <p className="text-gray-600 text-base sm:text-lg">
+              Quantifying taste, at scale—ranking projects by aura-adjusted revenue efficiency
+            </p>
+          </div>
+          
+          {/* Mode Toggle */}
+          <div className="flex bg-gray-50 sm:bg-white/70 rounded-lg p-1 shadow-sm">
             <button
               onClick={() => setViewMode('aura')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+              className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'aura'
-                  ? 'bg-white text-gray-900 shadow-md backdrop-blur-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/30'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Overview
+              Rankings
             </button>
             <button
               onClick={() => setViewMode('detailed')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+              className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'detailed'
-                  ? 'bg-white text-gray-900 shadow-md backdrop-blur-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/30'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              Detailed View
+              Details
             </button>
           </div>
         </div>
       </div>
 
-      <div className="glass-section-divider"></div>
-
+      {/* Content */}
       {viewMode === 'aura' ? renderAuraView() : renderDetailedView()}
 
-      <div className="glass-section-divider"></div>
-      
-      <div className="glass-footer p-6 rounded-b-xl">
-        <div className="text-xs text-gray-500 text-center">
+      {/* Last Updated */}
+      <div className="bg-white sm:glass-footer p-3 sm:p-4 rounded-none sm:rounded-b-xl border-t border-gray-100 sm:border-t-0">
+        <p className="text-xs sm:text-sm text-gray-500 text-center">
           Last updated: {new Date(data.lastUpdated).toLocaleString()}
-          <br />
-          Data sources: DefiLlama, Hyperliquid, & CoinGecko APIs
-        </div>
+        </p>
       </div>
 
-      {/* Custom Tooltip */}
+      {/* Tooltip */}
       {tooltip.show && (
         <div
-          className="fixed z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg pointer-events-none transform -translate-x-1/2 max-w-xs text-center"
+          className="fixed z-50 bg-gray-900 text-white text-sm rounded-lg px-3 py-2 shadow-lg pointer-events-none max-w-xs"
           style={{
-            left: tooltip.x,
-            top: tooltip.y,
+            left: `${tooltip.x}px`,
+            top: `${tooltip.y}px`,
+            transform: 'translateX(-50%)'
           }}
         >
           {tooltip.content}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
         </div>
       )}
     </div>

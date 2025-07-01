@@ -124,10 +124,10 @@ export function RevenueChart({ data, timeRange }: RevenueChartProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-      <div className="mb-6 flex justify-between items-start">
+    <div className="bg-white rounded-none sm:rounded-lg shadow-none sm:shadow-lg border-t border-gray-100 sm:border sm:border-gray-200 p-4 sm:p-6">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
         <div>
-          <h2 className="text-xl font-semibold mb-2" style={{ color: '#181818' }}>
+          <h2 className="text-lg sm:text-xl font-semibold mb-2" style={{ color: '#181818' }}>
             Builder Revenue
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -136,10 +136,10 @@ export function RevenueChart({ data, timeRange }: RevenueChartProps) {
         </div>
         
         {/* Chart Type Toggle */}
-        <div className="bg-gray-100 p-1 rounded-lg">
+        <div className="bg-gray-100 p-1 rounded-lg w-full sm:w-auto">
           <button
             onClick={() => setChartType('bar')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 sm:flex-none ${
               chartType === 'bar'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
@@ -149,7 +149,7 @@ export function RevenueChart({ data, timeRange }: RevenueChartProps) {
           </button>
           <button
             onClick={() => setChartType('pie')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex-1 sm:flex-none ${
               chartType === 'pie'
                 ? 'bg-white text-gray-900 shadow-sm'
                 : 'text-gray-600 hover:text-gray-900'
@@ -160,7 +160,7 @@ export function RevenueChart({ data, timeRange }: RevenueChartProps) {
         </div>
       </div>
 
-      <div className="h-96 relative">
+      <div className="h-80 sm:h-96 relative">
         {/* Watermark */}
         <div 
           className="absolute top-0 left-0 right-0 h-full flex justify-center pointer-events-none z-0"
